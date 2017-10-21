@@ -330,3 +330,52 @@ module.exports = new GraphQLSchema({
 //     }
 //   }
 // });
+
+/* 
+{
+  user(id: 10596512) {
+    name
+    lastActive
+    friendsNo
+    reviewsCount
+    userShelves {
+      read
+      currentlyReading
+      toRead
+    }
+    userStatus {
+      percentRead
+      book {
+        title
+        numPages
+        authors
+      }
+    }
+    read {
+      book {
+        title
+        numOfPages
+        authors
+        link
+        publicationYear
+        averageRating
+        ratingCount
+        description
+      }
+    }
+    currentReading {
+      book {
+        title
+        numOfPages
+        authors
+        link
+        publicationYear
+        averageRating
+        ratingCount
+        description
+      }
+    }
+  }
+}
+
+*/
