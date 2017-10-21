@@ -92,11 +92,26 @@ const UserType = new GraphQLObjectType({
       }
     },
     userStatus: {
-      type: GraphQLString,
+      type: new GraphQLList(Status),
       resolve: xml => {
-        console.log(xml.GoodreadsResponse.user[0].user_statuses);
-        return "string";
+        console.log(xml.GoodreadsResponse.user[0].user_statuses[0].user_status);
+        return xml.GoodreadsResponse.user[0].user_statuses[0].user_status;
       }
+    }
+  })
+});
+
+const Status = new GraphQLObjectType({
+  name: "Status",
+  description: "...",
+  fields: () => ({
+    title: {
+      type: GraphQLString,
+      resolve: xml => xml.title[0]
+    },
+    isbn: {
+      type: GraphQLString,
+      resolve: xml => xml.isbn[0]
     }
   })
 });
