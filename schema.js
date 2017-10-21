@@ -9,6 +9,8 @@ const {
   GraphQLList
 } = require("graphql");
 
+const Id = 10596512;
+
 const BookType = new GraphQLObjectType({
   name: "Book",
   description: "...",
@@ -24,19 +26,93 @@ const BookType = new GraphQLObjectType({
   })
 });
 
-const AuthorType = new GraphQLObjectType({
-  name: "Author",
+const userShelf = new GraphQLObjectType({
+  name: "UserShelf",
+  description: "...",
+  fields: () => ({
+    read: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.user_shelf[0].book_count[0]._;
+      }
+    },
+    currentlyReading: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.user_shelf[1].book_count[0]._;
+      }
+    },
+    toRead: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.user_shelf[2].book_count[0]._;
+      }
+    }
+  })
+});
+
+const UserType = new GraphQLObjectType({
+  name: "User",
   description: "...",
   fields: () => ({
     name: {
       type: GraphQLString,
-      resolve: xml => xml.GoodreadsResponse.author[0].name[0]
+      resolve: xml => {
+        return xml.GoodreadsResponse.user[0].name[0];
+      }
     },
-    books: {
-      type: new GraphQLList(BookType),
-      resolve: xml => xml.GoodreadsResponse.author[0].books[0].book
+    image: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.GoodreadsResponse.user[0].image_url[0];
+      }
+    },
+    lastActive: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.GoodreadsResponse.user[0].last_active[0];
+      }
+    },
+    friendsNo: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.GoodreadsResponse.user[0].friends_count[0]._;
+      }
+    },
+    reviewsCount: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.GoodreadsResponse.user[0].reviews_count[0]._;
+      }
+    },
+    userShelves: {
+      type: userShelf,
+      resolve: xml => {
+        return xml.GoodreadsResponse.user[0].user_shelves[0];
+      }
+    },
+    userStatus: {
+      type: GraphQLString,
+      resolve: xml => {
+        console.log(xml.GoodreadsResponse.user[0].user_statuses);
+        return "string";
+      }
     }
   })
+});
+
+const UserStype = new GraphQLObjectType({
+  name: "User",
+  description: "....User",
+  field: () => {
+    name: {
+      type: GraphQLString;
+      resolve: xml => {
+        console.log(xml.GoodreadsResponse);
+        xml.GoodreadsResponse;
+      };
+    }
+  }
 });
 
 module.exports = new GraphQLSchema({
@@ -44,8 +120,8 @@ module.exports = new GraphQLSchema({
     name: "Query",
     description: "...",
     fields: () => ({
-      author: {
-        type: AuthorType,
+      user: {
+        type: UserType,
         args: {
           id: {
             type: GraphQLInt
@@ -53,7 +129,7 @@ module.exports = new GraphQLSchema({
         },
         resolve: (parentValue, args) => {
           let key = `WrPwyxBPMtPbEX5zMkThWQ`;
-          let url = `https://www.goodreads.com/author/show.xml?id=${args.id}&key=${key}`;
+          let url = `https://www.goodreads.com/user/show/${args.id}.xml?key=${key}`;
           let result = fetch(url);
           return result.then(res => res.text()).then(parseXml);
         }
@@ -61,3 +137,20 @@ module.exports = new GraphQLSchema({
     })
   })
 });
+
+// https://www.goodreads.com/user/show/${args.id}.xml?key=${key}
+
+// user: {
+//   type: UserStype,
+//   args: {
+//     id: {
+//       type: GraphQLInt
+//     }
+//   },
+//   resolve: (parentValue, args) => {
+//     let key = `WrPwyxBPMtPbEX5zMkThWQ`;
+//     let url = `https://www.goodreads.com/shelf/list.xml?key=${key}&id=${args.id}`;
+//     let result = fetch(url);
+//     return result.then(res => res.text()).then(parseXml);
+//   }
+// }
