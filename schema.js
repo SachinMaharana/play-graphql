@@ -94,7 +94,7 @@ const UserType = new GraphQLObjectType({
     userStatus: {
       type: new GraphQLList(Status),
       resolve: xml => {
-        console.log(xml.GoodreadsResponse.user[0].user_statuses[0].user_status);
+        // console.log(xml.GoodreadsResponse.user[0].user_statuses[0].user_status);
         return xml.GoodreadsResponse.user[0].user_statuses[0].user_status;
       }
     }
@@ -105,13 +105,48 @@ const Status = new GraphQLObjectType({
   name: "Status",
   description: "...",
   fields: () => ({
+    id: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.id[0]._;
+      }
+    },
+    percentRead: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.percent[0]._;
+      }
+    },
+    book: {
+      type: BookStatusType,
+      resolve: xml => {
+        return xml.book[0];
+      }
+    }
+  })
+});
+
+const BookStatusType = new GraphQLObjectType({
+  name: "BookStatus",
+  description: "...",
+  fields: () => ({
     title: {
       type: GraphQLString,
-      resolve: xml => xml.title[0]
+      resolve: xml => {
+        return xml.title[0];
+      }
     },
-    isbn: {
+    numPages: {
       type: GraphQLString,
-      resolve: xml => xml.isbn[0]
+      resolve: xml => {
+        return xml.num_pages[0]._;
+      }
+    },
+    authors: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.authors[0].author[0].name[0];
+      }
     }
   })
 });
@@ -123,7 +158,7 @@ const UserStype = new GraphQLObjectType({
     name: {
       type: GraphQLString;
       resolve: xml => {
-        console.log(xml.GoodreadsResponse);
+        // console.log(xml.GoodreadsResponse);
         xml.GoodreadsResponse;
       };
     }
@@ -167,5 +202,28 @@ module.exports = new GraphQLSchema({
 //     let url = `https://www.goodreads.com/shelf/list.xml?key=${key}&id=${args.id}`;
 //     let result = fetch(url);
 //     return result.then(res => res.text()).then(parseXml);
+//   }
+// }
+
+// {
+//   user(id: 10596512) {
+//     name
+//     lastActive
+//     friendsNo
+//     reviewsCount
+//     userShelves {
+//       read
+//       currentlyReading
+//       toRead
+//     }
+//     userStatus {
+//       percentRead
+//       book {
+//         title
+//         numPages
+//         authors
+//       }
+//     }
+
 //   }
 // }
