@@ -97,6 +97,58 @@ const UserType = new GraphQLObjectType({
         // console.log(xml.GoodreadsResponse.user[0].user_statuses[0].user_status);
         return xml.GoodreadsResponse.user[0].user_statuses[0].user_status;
       }
+    },
+    read: {
+      type: new GraphQLList(ReadType),
+      resolve: () => {
+        let url = `https://www.goodreads.com/review/list/10596512.xml?key=WrPwyxBPMtPbEX5zMkThWQ&v=2&shelf=read&sort=date_updated&page=1&per_page=75`;
+        let result = fetch(url);
+        return result
+          .then(res => {
+            return res.text();
+          })
+          .then(res => parseXml(res))
+          .then(x => {
+            // console.log(x.GoodreadsResponse.reviews[0].review);
+            return x.GoodreadsResponse.reviews[0].review;
+          });
+      }
+    },
+    currentReading: {
+      type: new GraphQLList(ReadType),
+      resolve: () => {
+        let url = `https://www.goodreads.com/review/list/10596512.xml?key=WrPwyxBPMtPbEX5zMkThWQ&v=2&shelf=currently-reading&sort=date_updated&page=1&per_page=10`;
+        let result = fetch(url);
+        return result
+          .then(res => {
+            return res.text();
+          })
+          .then(res => parseXml(res))
+          .then(x => {
+            // console.log(x.GoodreadsResponse.reviews[0].review);
+            return x.GoodreadsResponse.reviews[0].review;
+          });
+      }
+    }
+  })
+});
+
+const ReadType = new GraphQLObjectType({
+  name: "ReadType",
+  description: "...",
+  fields: () => ({
+    id: {
+      type: GraphQLString,
+      resolve: xml => {
+        // console.log(xml.review);
+        return xml.id[0];
+      }
+    },
+    book: {
+      type: BookStatusType,
+      resolve: xml => {
+        return xml.book[0];
+      }
     }
   })
 });
@@ -114,6 +166,7 @@ const Status = new GraphQLObjectType({
     percentRead: {
       type: GraphQLString,
       resolve: xml => {
+        // console.log(xml);
         return xml.percent[0]._;
       }
     },
@@ -133,6 +186,7 @@ const BookStatusType = new GraphQLObjectType({
     title: {
       type: GraphQLString,
       resolve: xml => {
+        console.log(xml);
         return xml.title[0];
       }
     },
@@ -147,22 +201,44 @@ const BookStatusType = new GraphQLObjectType({
       resolve: xml => {
         return xml.authors[0].author[0].name[0];
       }
+    },
+    link: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.link[0];
+      }
+    },
+    numOfPages: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.num_pages[0];
+      }
+    },
+    publicationYear: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.publication_year[0];
+      }
+    },
+    averageRating: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.average_rating[0];
+      }
+    },
+    ratingCount: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.ratings_count[0];
+      }
+    },
+    description: {
+      type: GraphQLString,
+      resolve: xml => {
+        return xml.description[0];
+      }
     }
   })
-});
-
-const UserStype = new GraphQLObjectType({
-  name: "User",
-  description: "....User",
-  field: () => {
-    name: {
-      type: GraphQLString;
-      resolve: xml => {
-        // console.log(xml.GoodreadsResponse);
-        xml.GoodreadsResponse;
-      };
-    }
-  }
 });
 
 module.exports = new GraphQLSchema({
@@ -224,7 +300,33 @@ module.exports = new GraphQLSchema({
 //         authors
 //       }
 //     }
+// read {
+//   book {
+//     title
+//     numOfPages
+//     authors
+//     link
+//     publicationYear
+//     averageRating
+//     ratingCount
+//     description
+//   }
+// }
 
 //   }
 // }
 // https://www.goodreads.com/review/list/10596512.xml?key=WrPwyxBPMtPbEX5zMkThWQ&v=2&shelf=read&sort=date_updated&page=1&per_page=75
+
+// const UserStype = new GraphQLObjectType({
+//   name: "User",
+//   description: "....User",
+//   field: () => {
+//     name: {
+//       type: GraphQLString;
+//       resolve: xml => {
+//         // console.log(xml.GoodreadsResponse);
+//         xml.GoodreadsResponse;
+//       };
+//     }
+//   }
+// });
